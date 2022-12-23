@@ -3,24 +3,18 @@
     "id": "1",
     "name": "Allen Raymond",
     "email": "nulla.ante@vestibul.co.uk",
-    "number": "(992) 914-3792"
+    "phone": "(992) 914-3792"
   },
   {
     "id": "2",
-    "name": "Allen Raymond",
-    "email": "nulla.ante@vestibul.co.uk",
-    "number": "(992) 914-3792"
+    "name": "Chaim Lewis",
+    "email": "dui.in@egetlacus.ca",
+    "phone": "(294) 840-6685"
   },
   {
-    "id": "4a3ab2f18fa15e9eb979d4ec",
-    "name": "qwe",
-    "email": "qwe@qwe.com",
-    "number": "123123"
-  },
-  {
-    "id": "8c4cd358d15ef70fbc09b6d6",
-    "name": "uuuuuuuu",
-    "email": "uuuuu@uuuu.com",
-    "number": "77777"
+    "id": "3",
+    "name": "Kennedy Lane",
+    "email": "mattis.Cras@nonenimMauris.net",
+    "phone": "(542) 451-7038"
   }
 ]
