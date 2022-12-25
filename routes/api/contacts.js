@@ -5,7 +5,7 @@ const {
   addContact,
   removeContact,
   updateContact,
-} = require("../../controllers/contactsControllers");
+} = require("../../controllers/contactsController");
 const router = express.Router();
 const { addRequestValitation } = require("../../middlewares/validation");
 
