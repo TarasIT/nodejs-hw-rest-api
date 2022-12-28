@@ -26,7 +26,7 @@ const addRequestValitation = (req, res, next) => {
 };
 
 const addIdValitation = (req, res, next) => {
-  const schema = Joi.string().hex();
+  const schema = Joi.string().min(24).max(24);
   const validationResult = schema.validate(req.params.contactId);
   if (validationResult.error)
     return res.status(400).json({ message: validationResult.error.message });

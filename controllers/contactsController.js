@@ -1,11 +1,15 @@
-const { Contact } = require("../db/contactsModel");
+const {
+  getContacts,
+  getContactById,
+  addContact,
+  removeContact,
+  updateContact,
+  updateStatusContact,
+} = require("../services/contactsService");
 
-const listContacts = async (req, res) => {
+const listContactsController = async (req, res) => {
   try {
-    const contacts = await Contact.find();
-
-    if (contacts.length === 0)
-      return res.status(404).json({ message: "No contacts" });
+    const contacts = await getContacts();
 
     res.status(200).json({ contacts, message: "success" });
   } catch (error) {
@@ -13,12 +17,10 @@ const listContacts = async (req, res) => {
   }
 };
 
-const getById = async (req, res) => {
+const getByIdController = async (req, res) => {
   try {
     const { contactId } = req.params;
-    const contact = await Contact.findById(contactId);
-
-    if (!contact) return res.status(404).json({ message: "Not found" });
+    const contact = await getContactById(contactId);
 
     res.status(200).json({ contact, message: "success" });
   } catch (error) {
@@ -26,12 +28,10 @@ const getById = async (req, res) => {
   }
 };
 
-const addContact = async (req, res) => {
+const addContactController = async (req, res) => {
   try {
-    const { name, email, phone } = req.body;
-
-    const contact = new Contact({ name, email, phone });
-    await contact.save();
+    const { name, email, phone, favorite } = req.body;
+    await addContact({ name, email, phone, favorite });
 
     res.status(201).json({
       message: "success",
@@ -41,11 +41,10 @@ const addContact = async (req, res) => {
   }
 };
 
-const removeContact = async (req, res) => {
+const removeContactController = async (req, res) => {
   try {
     const { contactId } = req.params;
-
-    await Contact.findByIdAndRemove(contactId);
+    await removeContact(contactId);
 
     res.status(200).json({
       message: "The contact is successfully deleted!",
@@ -55,21 +54,12 @@ const removeContact = async (req, res) => {
   }
 };
 
-const updateContact = async (req, res) => {
+const updateContactController = async (req, res) => {
   try {
-    const { contactId } = req.params;
-    const { name, email, phone } = req.body;
+    const contact = await updateContact(req, res);
 
-    const contact = await Contact.findByIdAndUpdate(contactId, {
-      $set: { name, email, phone },
-    });
-
-    if (contact.length === 0)
-      return res.status(404).json({ message: "Not found" });
-
-    const newContact = await Contact.findById(contactId);
     res.status(200).json({
-      newContact,
+      contact,
       message: "The contact is successfully updated!",
     });
   } catch (error) {
@@ -77,32 +67,23 @@ const updateContact = async (req, res) => {
   }
 };
 
-const updateStatusContact = async (req, res) => {
+const updateStatusContactController = async (req, res) => {
   try {
-    const { contactId } = req.params;
-    const { favorite } = req.body;
-
-    const contact = await Contact.findByIdAndUpdate(contactId, {
-      $set: { favorite },
-    });
-
-    console.log("contact --------------->", contact);
-
-    if (!contact) return res.status(404).json({ message: "Not found" });
+    const status = await updateStatusContact(req, res);
 
     res
       .status(200)
-      .json({ message: `The favorite status changed to ${favorite}!` });
+      .json({ message: `The favorite status changed to ${status}!` });
   } catch (error) {
     console.error(error);
   }
 };
 
 module.exports = {
-  listContacts,
-  getById,
-  addContact,
-  removeContact,
-  updateContact,
-  updateStatusContact,
+  listContactsController,
+  getByIdController,
+  addContactController,
+  removeContactController,
+  updateContactController,
+  updateStatusContactController,
 };
