@@ -1,81 +1,59 @@
 const { Contact } = require("../db/contactsModel");
+const { httpError } = require("../helpers/apiHelpers");
 
-const getContacts = async (req, res) => {
-  try {
-    const contacts = await Contact.find();
+const getContacts = async (req, res, next) => {
+  const contacts = await Contact.find();
 
-    if (contacts.length === 0)
-      return res.status(404).json({ message: "No contacts" });
+  if (contacts.length === 0) return next(httpError(404, "No contacts"));
 
-    return contacts;
-  } catch (error) {
-    console.error(error);
-  }
+  return contacts;
 };
 
-const getContactById = async (contactId, res) => {
-  try {
-    const contact = await Contact.findById(contactId);
-
-    if (!contact) return res.status(404).json({ message: "Not found" });
-
-    return contact;
-  } catch (error) {
-    console.error(error);
-  }
+const getContactById = async (contactId, res, next) => {
+  const contact = await Contact.findById(contactId);
+  if (!contact) return next(httpError(404, "Not found"));
+  return contact;
 };
 
 const addContact = async ({ name, email, phone, favorite }) => {
-  try {
-    const contact = new Contact({ name, email, phone, favorite });
-    await contact.save();
-  } catch (error) {
-    console.error(error);
-  }
+  const contact = new Contact({ name, email, phone, favorite });
+  await contact.save();
 };
 
-const removeContact = async (contactId) => {
-  try {
+const removeContact = async (contactId, res, next) => {
+  const contact = await getContactById(contactId, res, next);
+
+  if (contact) {
     await Contact.findByIdAndRemove(contactId);
-  } catch (error) {
-    console.error(error);
+    return true;
   }
 };
 
-const updateContact = async (req, res) => {
-  try {
-    const { contactId } = req.params;
-    const { name, email, phone, favorite } = req.body;
+const updateContact = async (req, res, next) => {
+  const { contactId } = req.params;
+  const { name, email, phone, favorite } = req.body;
 
-    const contact = await Contact.findByIdAndUpdate(contactId, {
-      $set: { name, email, phone, favorite },
-    });
+  const contact = await Contact.findByIdAndUpdate(contactId, {
+    $set: { name, email, phone, favorite },
+  });
 
-    if (contact.length === 0)
-      return res.status(404).json({ message: "Not found" });
+  if (!contact) return next(httpError(404, "Not found"));
 
-    const newContact = await Contact.findById(contactId);
-    return newContact;
-  } catch (error) {
-    console.error(error);
-  }
+  const newContact = await Contact.findById(contactId);
+  return newContact;
 };
 
-const updateStatusContact = async (req, res) => {
-  try {
-    const { contactId } = req.params;
-    const { favorite } = req.body;
+const updateStatusContact = async (req, res, next) => {
+  const { contactId } = req.params;
+  const { favorite } = req.body;
 
-    const contact = await Contact.findByIdAndUpdate(contactId, {
-      $set: { favorite },
-    });
+  const contact = await Contact.findByIdAndUpdate(contactId, {
+    $set: { favorite },
+  });
 
-    if (!contact) return res.status(404).json({ message: "Not found" });
+  if (!contact) return next(httpError(404, "Not found"));
 
-    return favorite;
-  } catch (error) {
-    console.error(error);
-  }
+  return favorite;
 };
 
 module.exports = {

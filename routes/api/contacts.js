@@ -7,6 +7,7 @@ const {
   updateContactController,
   updateStatusContactController,
 } = require("../../controllers/contactsController");
+const { tryCatchWrapper } = require("../../helpers/apiHelpers");
 const router = express.Router();
 const {
   addRequestValitation,
@@ -14,21 +15,25 @@ const {
   addStatusValitation,
 } = require("../../middlewares/validation");
 
-router.get("/", listContactsController);
-router.get("/:contactId", addIdValitation, getByIdController);
-router.post("/", addRequestValitation, addContactController);
-router.delete("/:contactId", addIdValitation, removeContactController);
+router.get("/", tryCatchWrapper(listContactsController));
+router.get("/:contactId", addIdValitation, tryCatchWrapper(getByIdController));
+router.post("/", addRequestValitation, tryCatchWrapper(addContactController));
+router.delete(
+  "/:contactId",
+  addIdValitation,
+  tryCatchWrapper(removeContactController)
+);
 router.put(
   "/:contactId",
   addRequestValitation,
   addIdValitation,
-  updateContactController
+  tryCatchWrapper(updateContactController)
 );
 router.patch(
   "/:contactId/favorite",
   addStatusValitation,
   addIdValitation,
-  updateStatusContactController
+  tryCatchWrapper(updateStatusContactController)
 );
 
 module.exports = router;

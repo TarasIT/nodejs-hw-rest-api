@@ -7,76 +7,62 @@ const {
   updateStatusContact,
 } = require("../services/contactsService");
 
-const listContactsController = async (req, res) => {
-  try {
-    const contacts = await getContacts();
+const listContactsController = async (req, res, next) => {
+  const contacts = await getContacts();
 
-    res.status(200).json({ contacts, message: "success" });
-  } catch (error) {
-    console.error(error);
-  }
+  if (!contacts) return;
+
+  res.status(200).json({ contacts, message: "success" });
 };
 
-const getByIdController = async (req, res) => {
-  try {
-    const { contactId } = req.params;
-    const contact = await getContactById(contactId);
+const getByIdController = async (req, res, next) => {
+  const { contactId } = req.params;
+  const contact = await getContactById(contactId, res, next);
 
-    res.status(200).json({ contact, message: "success" });
-  } catch (error) {
-    console.error(error);
-  }
+  if (!contact) return;
+
+  res.status(200).json({ contact, message: "success" });
 };
 
 const addContactController = async (req, res) => {
-  try {
-    const { name, email, phone, favorite } = req.body;
-    await addContact({ name, email, phone, favorite });
+  const { name, email, phone, favorite } = req.body;
+  await addContact({ name, email, phone, favorite });
 
-    res.status(201).json({
-      message: "success",
-    });
-  } catch (error) {
-    console.error(error);
-  }
+  return res.status(201).json({
+    message: "success",
+  });
 };
 
-const removeContactController = async (req, res) => {
-  try {
-    const { contactId } = req.params;
-    await removeContact(contactId);
+const removeContactController = async (req, res, next) => {
+  const { contactId } = req.params;
+  const isContactDeleted = await removeContact(contactId, res, next);
 
-    res.status(200).json({
-      message: "The contact is successfully deleted!",
-    });
-  } catch (error) {
-    console.error(error);
-  }
+  if (!isContactDeleted) return;
+
+  res.status(200).json({
+    message: "The contact is successfully deleted!",
+  });
 };
 
-const updateContactController = async (req, res) => {
-  try {
-    const contact = await updateContact(req, res);
+const updateContactController = async (req, res, next) => {
+  const contact = await updateContact(req, res, next);
 
-    res.status(200).json({
-      contact,
-      message: "The contact is successfully updated!",
-    });
-  } catch (error) {
-    console.error(error);
-  }
+  if (!contact) return;
+
+  return res.status(200).json({
+    contact,
+    message: "The contact is successfully updated!",
+  });
 };
 
-const updateStatusContactController = async (req, res) => {
-  try {
-    const status = await updateStatusContact(req, res);
+const updateStatusContactController = async (req, res, next) => {
+  const status = await updateStatusContact(req, res, next);
 
-    res
-      .status(200)
-      .json({ message: `The favorite status changed to ${status}!` });
-  } catch (error) {
-    console.error(error);
-  }
+  if (status === undefined) return;
+
+  return res
+    .status(200)
+    .json({ message: `The favorite status changed to ${status}!` });
 };
 
 module.exports = {
