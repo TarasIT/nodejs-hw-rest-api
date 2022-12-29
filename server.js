@@ -1,5 +1,18 @@
 const app = require("./app");
+const { connectMongodb } = require("./db/conection");
 
-app.listen(3000, () => {
-  console.log("Server running. Use our API on port: 3000");
-});
+const PORT = process.env.PORT || 4000;
+
+const startServer = async () => {
+  try {
+    await connectMongodb();
+
+    app.listen(PORT, () => {
+      console.log("Database connection successful!");
+    });
+  } catch (error) {
+    console.error(`Failed to launch application with error: ${error.message}`);
+    process.exitCode = 1;
+  }
+};
+startServer();

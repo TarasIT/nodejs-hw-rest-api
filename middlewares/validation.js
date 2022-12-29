@@ -9,11 +9,12 @@ const addRequestValitation = (req, res, next) => {
         tlds: { allow: ["com", "net"] },
       })
       .required(),
-    number: Joi.string()
+    phone: Joi.string()
       .pattern(/^[0-9]+$/, "numbers")
       .min(3)
       .max(50)
       .required(),
+    favorite: Joi.boolean(),
   });
   const validationResult = schema.validate(req.body);
 
@@ -24,6 +25,31 @@ const addRequestValitation = (req, res, next) => {
   next();
 };
 
+const addIdValitation = (req, res, next) => {
+  const schema = Joi.string().min(24).max(24);
+  const validationResult = schema.validate(req.params.contactId);
+  if (validationResult.error)
+    return res.status(400).json({ message: validationResult.error.message });
+
+  next();
+};
+
+const addStatusValitation = (req, res, next) => {
+  if (Object.keys(req.body).length === 0)
+    return res.status(400).json({ message: "missing field favorite" });
+
+  const schemaValidation = Joi.object({
+    favorite: Joi.boolean(),
+  });
+  const validationResult = schemaValidation.validate(req.body);
+  if (validationResult.error)
+    return res.status(400).json({ message: validationResult.error.message });
+
+  next();
+};
+
 module.exports = {
   addRequestValitation,
+  addIdValitation,
+  addStatusValitation,
 };
