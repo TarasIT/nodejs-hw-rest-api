@@ -43,7 +43,7 @@ const updateContact = async (req, res, next) => {
   return newContact;
 };
 
-const updateStatusContact = async (req, res, next) => {
+const updateContactStatus = async (req, res, next) => {
   const { contactId } = req.params;
   const { favorite } = req.body;
 
@@ -62,5 +62,5 @@ module.exports = {
   addContact,
   removeContact,
   updateContact,
-  updateStatusContact,
+  updateContactStatus,
 };

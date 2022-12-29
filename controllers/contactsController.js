@@ -4,7 +4,7 @@ const {
   addContact,
   removeContact,
   updateContact,
-  updateStatusContact,
+  updateContactStatus,
 } = require("../services/contactsService");
 
 const listContactsController = async (req, res, next) => {
@@ -55,8 +55,8 @@ const updateContactController = async (req, res, next) => {
   });
 };
 
-const updateStatusContactController = async (req, res, next) => {
-  const status = await updateStatusContact(req, res, next);
+const updateContactStatusController = async (req, res, next) => {
+  const status = await updateContactStatus(req, res, next);
 
   if (status === undefined) return;
 
@@ -71,5 +71,5 @@ module.exports = {
   addContactController,
   removeContactController,
   updateContactController,
-  updateStatusContactController,
+  updateContactStatusController,
 };

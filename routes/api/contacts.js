@@ -1,14 +1,14 @@
 const express = require("express");
+const router = express.Router();
 const {
   listContactsController,
   getByIdController,
   addContactController,
   removeContactController,
   updateContactController,
-  updateStatusContactController,
+  updateContactStatusController,
 } = require("../../controllers/contactsController");
 const { tryCatchWrapper } = require("../../helpers/apiHelpers");
-const router = express.Router();
 const {
   addRequestValitation,
   addIdValitation,
@@ -33,7 +33,7 @@ router.patch(
   "/:contactId/favorite",
   addStatusValitation,
   addIdValitation,
-  tryCatchWrapper(updateStatusContactController)
+  tryCatchWrapper(updateContactStatusController)
 );
 
 module.exports = router;
