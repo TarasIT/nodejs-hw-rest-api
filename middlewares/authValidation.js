@@ -1,4 +1,5 @@
 const Joi = require("joi");
+const { error } = require("../helpers/errors");
 
 const addUserValitation = (req, res, next) => {
   const schema = Joi.object({
@@ -15,9 +16,8 @@ const addUserValitation = (req, res, next) => {
   });
   const validationResult = schema.validate(req.body);
 
-  if (validationResult.error) {
-    return res.status(400).json({ message: validationResult.error.message });
-  }
+  if (validationResult.error)
+    return next(error(400, validationResult.error.message));
 
   next();
 };
