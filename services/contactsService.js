@@ -22,7 +22,6 @@ const addContact = async ({ name, email, phone, favorite }, owner) => {
 
 const removeContact = async (contactId, owner, res) => {
   const contact = await getContactById(contactId, owner, res);
-
   if (contact) {
     await Contact.findByIdAndRemove(contactId);
     return true;
@@ -33,7 +32,6 @@ const updateContact = async (req, res) => {
   const { contactId } = req.params;
   const { _id: owner } = req.user;
   const { name, email, phone, favorite } = req.body;
-
   await Contact.findOneAndUpdate(
     { _id: contactId, owner },
     {
@@ -48,7 +46,6 @@ const updateContactStatus = async (req, res) => {
   const { contactId } = req.params;
   const { _id: owner } = req.user;
   const { favorite } = req.body;
-
   await Contact.findOneAndUpdate(
     { _id: contactId, owner },
     {

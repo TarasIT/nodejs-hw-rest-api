@@ -18,14 +18,12 @@ const logIn = async (email, password, next) => {
   if (!user) return next(error(400, `No user with email '${email}' found`));
   if (!(await bcrypt.compare(password, user.password)))
     return next(error(400, `Wrong password`));
-
   const token = jwt.sign(
     {
       _id: user._id,
     },
     process.env.JWT_SECRET
   );
-
   await User.findOneAndUpdate(
     { _id: user._id },
     {
@@ -42,10 +40,8 @@ const getUser = async (_id, token) => {
 
 const updateUserSubscription = async (_id, token, subscription, next) => {
   const subscriptionsList = userSchema.path("subscription").options.enum;
-
   if (!subscriptionsList.includes(subscription))
     return next(error(400, `${subscriptionsList.join(", ")} are available!`));
-
   await User.findOneAndUpdate({ _id, token }, { $set: { subscription } });
   const userWithNewSubscription = await User.findOne({ _id, token });
   return userWithNewSubscription;

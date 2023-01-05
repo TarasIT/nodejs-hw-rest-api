@@ -25,7 +25,6 @@ router.get(
   tryCatchWrapper(favoriteContactsController),
   tryCatchWrapper(listContactsController)
 );
-
 router.get("/:contactId", addIdValitation, tryCatchWrapper(getByIdController));
 router.post("/", addContactValitation, tryCatchWrapper(addContactController));
 router.delete(

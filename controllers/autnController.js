@@ -10,7 +10,6 @@ const registrationController = async (req, res, next) => {
   const { email, password } = req.body;
   const existingUser = await registration(email, password, next);
   if (existingUser) return next(error(409, "Email in use"));
-
   res.status(201).json({
     user: { email: `${email}`, subscription: "starter" },
   });
@@ -47,7 +46,6 @@ const logOutController = async (req, res, next) => {
   const user = await getUser(_id, token);
   if (!user) return next(error(401, "Not authorized"));
   token = null;
-
   res.status(204).json();
 };
 

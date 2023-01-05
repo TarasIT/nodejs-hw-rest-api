@@ -23,14 +23,14 @@ router.post(
 );
 router.post("/login", addUserValitation, tryCatchWrapper(logInController));
 router.get(
-  "/logout",
-  tryCatchWrapper(authMiddleware),
-  tryCatchWrapper(logOutController)
-);
-router.get(
   "/current",
   tryCatchWrapper(authMiddleware),
   tryCatchWrapper(currentUserController)
+);
+router.get(
+  "/logout",
+  tryCatchWrapper(authMiddleware),
+  tryCatchWrapper(logOutController)
 );
 
 module.exports = router;

@@ -15,7 +15,6 @@ const listContactsController = async (req, res, next) => {
 
   limit > "10" ? (limit = "10") : limit;
   page = page * limit - limit;
-
   const contacts = await getContacts(owner, page, limit);
   if (contacts.length === 0) return next(error(404, "No contacts"));
   res.status(200).json({ contacts, message: "success" });
@@ -26,7 +25,6 @@ const favoriteContactsController = async (req, res, next) => {
 
   const { _id: owner } = req.user;
   const { favorite } = req.query;
-
   const contacts = await getFavoriteContacts(owner, favorite);
   if (contacts.length === 0) return next(error(404, "No contacts"));
   res.status(200).json({ contacts, message: "success" });
@@ -70,7 +68,6 @@ const updateContactController = async (req, res, next) => {
 const updateContactStatusController = async (req, res, next) => {
   if (Object.keys(req.body).length === 0)
     return next(error(400, "missing field favorite"));
-
   const contact = await updateContactStatus(req, res, next);
   if (!contact) return next(error(404, "Not found"));
   return res
