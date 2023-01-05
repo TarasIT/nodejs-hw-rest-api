@@ -7,17 +7,27 @@ const {
   removeContactController,
   updateContactController,
   updateContactStatusController,
+  favoriteContactsController,
 } = require("../../controllers/contactsController");
 const { tryCatchWrapper } = require("../../helpers/apiHelpers");
+const { authMiddleware } = require("../../middlewares/authMiddleware");
 const {
-  addRequestValitation,
+  addContactValitation,
   addIdValitation,
   addStatusValitation,
-} = require("../../middlewares/validation");
+} = require("../../middlewares/contactsValidation");
 
-router.get("/", tryCatchWrapper(listContactsController));
+router.use(tryCatchWrapper(authMiddleware));
+
+router.get(
+  "/",
+  addStatusValitation,
+  tryCatchWrapper(favoriteContactsController),
+  tryCatchWrapper(listContactsController)
+);
+
 router.get("/:contactId", addIdValitation, tryCatchWrapper(getByIdController));
-router.post("/", addRequestValitation, tryCatchWrapper(addContactController));
+router.post("/", addContactValitation, tryCatchWrapper(addContactController));
 router.delete(
   "/:contactId",
   addIdValitation,
@@ -25,7 +35,7 @@ router.delete(
 );
 router.put(
   "/:contactId",
-  addRequestValitation,
+  addContactValitation,
   addIdValitation,
   tryCatchWrapper(updateContactController)
 );

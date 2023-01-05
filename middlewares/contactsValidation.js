@@ -1,6 +1,7 @@
 const Joi = require("joi");
+const { error } = require("../helpers/errors");
 
-const addRequestValitation = (req, res, next) => {
+const addContactValitation = (req, res, next) => {
   const schema = Joi.object({
     name: Joi.string().alphanum().min(1).max(50).required(),
     email: Joi.string()
@@ -18,9 +19,8 @@ const addRequestValitation = (req, res, next) => {
   });
   const validationResult = schema.validate(req.body);
 
-  if (validationResult.error) {
-    return res.status(400).json({ message: validationResult.error.message });
-  }
+  if (validationResult.error)
+    return next(error(400, validationResult.error.message));
 
   next();
 };
@@ -29,27 +29,29 @@ const addIdValitation = (req, res, next) => {
   const schema = Joi.string().min(24).max(24);
   const validationResult = schema.validate(req.params.contactId);
   if (validationResult.error)
-    return res.status(400).json({ message: validationResult.error.message });
+    return next(error(400, validationResult.error.message));
 
   next();
 };
 
 const addStatusValitation = (req, res, next) => {
-  if (Object.keys(req.body).length === 0)
-    return res.status(400).json({ message: "missing field favorite" });
-
   const schemaValidation = Joi.object({
     favorite: Joi.boolean(),
   });
-  const validationResult = schemaValidation.validate(req.body);
-  if (validationResult.error)
-    return res.status(400).json({ message: validationResult.error.message });
+
+  const changeStatusResult = schemaValidation.validate(req.body);
+  if (changeStatusResult.error)
+    return next(error(400, changeStatusResult.error.message));
+
+  const getContactsByStatusResult = schemaValidation.validate(req.query);
+  if (getContactsByStatusResult.error)
+    return next(error(400, getContactsByStatusResult.error.message));
 
   next();
 };
 
 module.exports = {
-  addRequestValitation,
+  addContactValitation,
   addIdValitation,
   addStatusValitation,
 };

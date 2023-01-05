@@ -1,27 +1,27 @@
-const { Contact } = require("../db/contactsModel");
-const { httpError } = require("../helpers/apiHelpers");
+const { Contact } = require("../db/contactModel");
 
-const getContacts = async (req, res, next) => {
-  const contacts = await Contact.find();
-
-  if (contacts.length === 0) return next(httpError(404, "No contacts"));
-
+const getContacts = async (owner, page, limit) => {
+  const contacts = await Contact.find({ owner }).skip(page).limit(limit);
   return contacts;
 };
 
-const getContactById = async (contactId, res, next) => {
-  const contact = await Contact.findById(contactId);
-  if (!contact) return next(httpError(404, "Not found"));
+const getFavoriteContacts = async (owner, favorite) => {
+  const contacts = await Contact.find({ owner, favorite });
+  return contacts;
+};
+
+const getContactById = async (contactId, owner) => {
+  const contact = await Contact.findOne({ _id: contactId, owner });
   return contact;
 };
 
-const addContact = async ({ name, email, phone, favorite }) => {
-  const contact = new Contact({ name, email, phone, favorite });
+const addContact = async ({ name, email, phone, favorite }, owner) => {
+  const contact = new Contact({ owner, name, email, phone, favorite });
   await contact.save();
 };
 
-const removeContact = async (contactId, res, next) => {
-  const contact = await getContactById(contactId, res, next);
+const removeContact = async (contactId, owner, res) => {
+  const contact = await getContactById(contactId, owner, res);
 
   if (contact) {
     await Contact.findByIdAndRemove(contactId);
@@ -29,35 +29,39 @@ const removeContact = async (contactId, res, next) => {
   }
 };
 
-const updateContact = async (req, res, next) => {
+const updateContact = async (req, res) => {
   const { contactId } = req.params;
+  const { _id: owner } = req.user;
   const { name, email, phone, favorite } = req.body;
 
-  const contact = await Contact.findByIdAndUpdate(contactId, {
-    $set: { name, email, phone, favorite },
-  });
-
-  if (!contact) return next(httpError(404, "Not found"));
-
-  const newContact = await Contact.findById(contactId);
-  return newContact;
+  await Contact.findOneAndUpdate(
+    { _id: contactId, owner },
+    {
+      $set: { name, email, phone, favorite },
+    }
+  );
+  const updatedContact = await Contact.findById(contactId);
+  return updatedContact;
 };
 
-const updateContactStatus = async (req, res, next) => {
+const updateContactStatus = async (req, res) => {
   const { contactId } = req.params;
+  const { _id: owner } = req.user;
   const { favorite } = req.body;
 
-  const contact = await Contact.findByIdAndUpdate(contactId, {
-    $set: { favorite },
-  });
-
-  if (!contact) return next(httpError(404, "Not found"));
-
-  return favorite;
+  await Contact.findOneAndUpdate(
+    { _id: contactId, owner },
+    {
+      $set: { favorite },
+    }
+  );
+  const updatedContact = await Contact.findById(contactId);
+  return updatedContact;
 };
 
 module.exports = {
   getContacts,
+  getFavoriteContacts,
   getContactById,
   addContact,
   removeContact,
