@@ -15,13 +15,14 @@ const {
   addContactValitation,
   addIdValitation,
   addStatusValitation,
+  addQueryParamsValidation,
 } = require("../../middlewares/contactsValidation");
 
 router.use(tryCatchWrapper(authMiddleware));
 
 router.get(
   "/",
-  addStatusValitation,
+  addQueryParamsValidation,
   tryCatchWrapper(favoriteContactsController),
   tryCatchWrapper(listContactsController)
 );

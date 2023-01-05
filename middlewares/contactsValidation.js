@@ -43,9 +43,19 @@ const addStatusValitation = (req, res, next) => {
   if (changeStatusResult.error)
     return next(error(400, changeStatusResult.error.message));
 
-  const getContactsByStatusResult = schemaValidation.validate(req.query);
-  if (getContactsByStatusResult.error)
-    return next(error(400, getContactsByStatusResult.error.message));
+  next();
+};
+
+const addQueryParamsValidation = (req, res, next) => {
+  const schemaValidation = Joi.object({
+    favorite: Joi.boolean(),
+    page: Joi.string().pattern(/^[0-9]+$/, "numbers"),
+    limit: Joi.string().pattern(/^[0-9]+$/, "numbers"),
+  });
+
+  const validationResult = schemaValidation.validate(req.query);
+  if (validationResult.error)
+    return next(error(400, validationResult.error.message));
 
   next();
 };
@@ -54,4 +64,5 @@ module.exports = {
   addContactValitation,
   addIdValitation,
   addStatusValitation,
+  addQueryParamsValidation,
 };

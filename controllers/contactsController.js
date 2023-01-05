@@ -13,15 +13,17 @@ const listContactsController = async (req, res, next) => {
   let { page, limit } = req.query;
   const { _id: owner } = req.user;
 
-  limit > "10" ? (limit = "10") : limit;
+  limit = limit > 10 ? (limit = 10) : limit;
   page = page * limit - limit;
+
   const contacts = await getContacts(owner, page, limit);
   if (contacts.length === 0) return next(error(404, "No contacts"));
   res.status(200).json({ contacts, message: "success" });
 };
 
 const favoriteContactsController = async (req, res, next) => {
-  if (!req.query.hasOwnProperty("favorite")) return next();
+  if (!Object.prototype.hasOwnProperty.call(req.query, "favorite"))
+    return next();
 
   const { _id: owner } = req.user;
   const { favorite } = req.query;

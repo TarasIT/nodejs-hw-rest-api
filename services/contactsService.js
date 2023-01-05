@@ -1,7 +1,9 @@
 const { Contact } = require("../db/contactModel");
 
 const getContacts = async (owner, page, limit) => {
-  const contacts = await Contact.find({ owner }).skip(page).limit(limit);
+  const contacts = await Contact.find({ owner })
+    .skip(parseInt(page))
+    .limit(parseInt(limit));
   return contacts;
 };
 
