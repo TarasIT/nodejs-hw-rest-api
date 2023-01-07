@@ -68,8 +68,6 @@ const updateContactController = async (req, res, next) => {
 };
 
 const updateContactStatusController = async (req, res, next) => {
-  if (Object.keys(req.body).length === 0)
-    return next(error(400, "missing field favorite"));
   const contact = await updateContactStatus(req, res, next);
   if (!contact) return next(error(404, "Not found"));
   return res
