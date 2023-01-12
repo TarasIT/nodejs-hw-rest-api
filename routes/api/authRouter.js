@@ -1,12 +1,16 @@
 const express = require("express");
+const router = express.Router();
+const path = require("path");
+const { upload } = require("../../db/filesStorage");
+const downloadFileDir = path.join(process.cwd(), "public/avatars");
 const {
   registrationController,
   logInController,
   logOutController,
   currentUserController,
-  updateSubscriptionController,
+  userAvatarController,
+  userSubscriptionController,
 } = require("../../controllers/autnController");
-const router = express.Router();
 const { tryCatchWrapper } = require("../../helpers/apiHelpers");
 const { authMiddleware } = require("../../middlewares/authMiddleware");
 const { addUserValitation } = require("../../middlewares/authValidation");
@@ -14,7 +18,14 @@ const { addUserValitation } = require("../../middlewares/authValidation");
 router.patch(
   "/users",
   tryCatchWrapper(authMiddleware),
-  tryCatchWrapper(updateSubscriptionController)
+  tryCatchWrapper(userSubscriptionController)
+);
+router.use(
+  "/users/avatars",
+  tryCatchWrapper(authMiddleware),
+  upload.single("avatar"),
+  express.static(downloadFileDir),
+  tryCatchWrapper(userAvatarController)
 );
 router.post(
   "/signup",

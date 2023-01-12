@@ -30,31 +30,23 @@ const removeContact = async (contactId, owner, res) => {
   }
 };
 
-const updateContact = async (req, res) => {
-  const { contactId } = req.params;
-  const { _id: owner } = req.user;
-  const { name, email, phone, favorite } = req.body;
-  await Contact.findOneAndUpdate(
+const updateContact = async (contactId, owner, { name, email, phone, favorite }) => {
+  const updatedContact = await Contact.findOneAndUpdate(
     { _id: contactId, owner },
     {
       $set: { name, email, phone, favorite },
-    }
+    }, {new: true}
   );
-  const updatedContact = await Contact.findById(contactId);
   return updatedContact;
 };
 
-const updateContactStatus = async (req, res) => {
-  const { contactId } = req.params;
-  const { _id: owner } = req.user;
-  const { favorite } = req.body;
-  await Contact.findOneAndUpdate(
+const updateContactStatus = async (contactId, owner, favorite) => {
+  const updatedContact = await Contact.findOneAndUpdate(
     { _id: contactId, owner },
     {
       $set: { favorite },
-    }
+    }, {new: true}
   );
-  const updatedContact = await Contact.findById(contactId);
   return updatedContact;
 };
 
