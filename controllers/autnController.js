@@ -10,7 +10,7 @@ const {
 
 const registrationController = async (req, res, next) => {
   const { email, password } = req.body;
-  const existingUser = await registration(email, password, next);
+  const existingUser = await registration(email, password);
   if (existingUser) return next(error(409, "Email in use"));
   res.status(201).json({
     user: { email: `${email}`, subscription: "starter" },
@@ -19,10 +19,11 @@ const registrationController = async (req, res, next) => {
 
 const logInController = async (req, res, next) => {
   const { email, password } = req.body;
-  const token = await logIn(email, password, next);
+  const user = await logIn(email, password, next);
+  const { token, subscription } = user;
   if (!token) return next(error(401, "Not authorized"));
   res.status(200).json({
-    user: { token: token, email: `${email}`, subscription: "starter" },
+    user: { token, email, subscription },
   });
 };
 

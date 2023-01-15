@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const path = require("path");
-const { upload } = require("../../db/filesStorage");
+const { upload } = require("../../helpers/filesStorage");
 const downloadFileDir = path.join(process.cwd(), "public/avatars");
 const {
   registrationController,

@@ -6,7 +6,7 @@ const fs = require("fs").promises;
 const { User, userSchema } = require("../db/userModel");
 const { error } = require("../helpers/errors");
 
-const registration = async (email, password, next) => {
+const registration = async (email, password) => {
   const existingUser = await User.findOne({ email });
   if (existingUser) return existingUser;
   const user = new User({
@@ -28,13 +28,14 @@ const logIn = async (email, password, next) => {
     },
     process.env.JWT_SECRET
   );
-  await User.findOneAndUpdate(
+  const authorizedUser = await User.findOneAndUpdate(
     { _id: user._id },
     {
       $set: { token },
-    }
+    },
+    { new: true }
   );
-  return token;
+  return authorizedUser;
 };
 
 const getUser = async (_id, token) => await User.findOne({ _id, token });
@@ -42,8 +43,14 @@ const getUser = async (_id, token) => await User.findOne({ _id, token });
 const updateUserSubscription = async (_id, token, subscription, next) => {
   const subscriptionsList = userSchema.path("subscription").options.enum;
   if (!subscriptionsList.includes(subscription))
-    return next(error(400, `Only ${subscriptionsList.join(", ")} are available!`));
-  const user = await User.findOneAndUpdate({ _id, token }, { $set: { subscription } }, {new: true});
+    return next(
+      error(400, `Only ${subscriptionsList.join(", ")} are available!`)
+    );
+  const user = await User.findOneAndUpdate(
+    { _id, token },
+    { $set: { subscription } },
+    { new: true }
+  );
   return user;
 };
 
@@ -54,7 +61,8 @@ const updateUserAvatar = async (filename, _id, token) => {
       $set: {
         avatarURL: `http://localhost:${process.env.PORT}/api/auth/users/avatars/${filename}`,
       },
-    }, {new: true}
+    },
+    { new: true }
   );
   return user;
 };
@@ -63,7 +71,7 @@ const resizeAndRelocateAvatar = async (path, filename) => {
   const image = await Jimp.read(path);
   image.resize(250, 250);
   await image.writeAsync(`tmp/${filename}`);
-  fs.rename(`tmp/${filename}`, `public/avatars/${filename}`)
+  fs.rename(`tmp/${filename}`, `public/avatars/${filename}`);
 };
 
 module.exports = {
