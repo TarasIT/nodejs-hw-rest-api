@@ -59,7 +59,9 @@ const removeContactController = async (req, res, next) => {
 };
 
 const updateContactController = async (req, res, next) => {
-  const contact = await updateContact(req, res, next);
+  const { contactId } = req.params;
+  const { _id: owner } = req.user;
+  const contact = await updateContact(contactId, owner, req.body);
   if (!contact) return next(error(404, "Not found"));
   return res.status(200).json({
     contact,
@@ -68,13 +70,14 @@ const updateContactController = async (req, res, next) => {
 };
 
 const updateContactStatusController = async (req, res, next) => {
-  if (Object.keys(req.body).length === 0)
-    return next(error(400, "missing field favorite"));
-  const contact = await updateContactStatus(req, res, next);
+  const { contactId } = req.params;
+  const { _id: owner } = req.user;
+  const { favorite } = req.body;
+  const contact = await updateContactStatus(contactId, owner, favorite);
   if (!contact) return next(error(404, "Not found"));
   return res
     .status(200)
-    .json({ message: `The favorite status changed to ${contact.favorite}!` });
+    .json({ message: `The favorite status is changed to ${contact.favorite}!` });
 };
 
 module.exports = {
