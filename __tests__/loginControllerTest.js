@@ -19,13 +19,13 @@ app.post("/api/auth/login", (req, res, next) =>
   logInController((req = mReq), res, next)
 );
 
-describe("test", () => {
+describe("test of logInController", () => {
   beforeAll(() => {
     app.listen(3000);
   });
-  afterAll(async () => (process.exitCode = 1));
+  afterAll(() => (process.exitCode = 1));
 
-  test("should return status 200", async () => {
+  test("should return status 200 and user authorization object", async () => {
     const { password } = mReq.body;
     const user = {
       _id: new mongoose.Types.ObjectId(),
