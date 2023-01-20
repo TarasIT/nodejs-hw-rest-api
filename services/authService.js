@@ -3,8 +3,20 @@ const bcrypt = require("bcrypt");
 const gravatar = require("gravatar");
 const Jimp = require("jimp");
 const fs = require("fs").promises;
+const nodemailer = require("nodemailer");
+const { v4: uuidv4 } = require("uuid");
 const { User, userSchema } = require("../db/userModel");
 const { error } = require("../helpers/errors");
+
+const config = {
+  host: "smtp.ukr.net",
+  port: 465,
+  secure: true,
+  auth: {
+    user: "taras_malcev@ukr.net",
+    pass: process.env.UKRNET_IMAP_KEY,
+  },
+};
 
 const registration = async (email, password) => {
   const existingUser = await User.findOne({ email });
@@ -13,13 +25,53 @@ const registration = async (email, password) => {
     email,
     password,
     avatarURL: gravatar.url(email),
+    verificationToken: uuidv4(),
   });
   await user.save();
+
+  const transporter = nodemailer.createTransport(config);
+  const emailOptions = {
+    from: "taras_malcev@ukr.net",
+    to: email,
+    subject: "Email сonfirmation",
+    text: `Please, follow the link to confirm your email: 
+    http://localhost:${process.env.PORT}/api/auth/users/verify/${user.verificationToken}`,
+  };
+
+  await transporter.sendMail(emailOptions);
 };
+
+const resendingVerificationLetter = async (email, next) => {
+  const user = await User.findOne({ email });
+  if (!user) return next(error(400, `No user with email '${email}' found`));
+  if (user.verify)
+    return next(error(400, "Verification has already been passed"));
+
+  const transporter = nodemailer.createTransport(config);
+  const emailOptions = {
+    from: "taras_malcev@ukr.net",
+    to: email,
+    subject: "Email сonfirmation",
+    text: `Please, follow the link to confirm your email: 
+    http://localhost:${process.env.PORT}/api/auth/users/verify/${user.verificationToken}`,
+  };
+  await transporter.sendMail(emailOptions);
+  return true;
+};
+
+const verifyUser = async (verificationToken) =>
+  await User.findOneAndUpdate(
+    { verificationToken },
+    {
+      $set: { verificationToken: null, verify: true },
+    },
+    { new: true }
+  );
 
 const logIn = async (email, password, next) => {
   const user = await User.findOne({ email });
   if (!user) return next(error(400, `No user with email '${email}' found`));
+  if (!user.verify) return next(error(400, `User is not verified`));
   if (!(await bcrypt.compare(password, user.password)))
     return next(error(400, `Wrong password`));
   const token = jwt.sign(
@@ -81,4 +133,6 @@ module.exports = {
   updateUserAvatar,
   updateUserSubscription,
   resizeAndRelocateAvatar,
+  verifyUser,
+  resendingVerificationLetter,
 };

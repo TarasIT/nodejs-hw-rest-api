@@ -10,15 +10,29 @@ const {
   currentUserController,
   userAvatarController,
   userSubscriptionController,
+  verifyController,
+  resendingLetterController,
 } = require("../../controllers/autnController");
 const { tryCatchWrapper } = require("../../helpers/apiHelpers");
 const { authMiddleware } = require("../../middlewares/authMiddleware");
-const { addUserValitation } = require("../../middlewares/authValidation");
+const {
+  addUserValitation,
+  emailValitation,
+} = require("../../middlewares/authValidation");
 
 router.patch(
   "/users",
   tryCatchWrapper(authMiddleware),
   tryCatchWrapper(userSubscriptionController)
+);
+router.get(
+  "/users/verify/:verificationToken",
+  tryCatchWrapper(verifyController)
+);
+router.post(
+  "/users/verify",
+  tryCatchWrapper(emailValitation),
+  tryCatchWrapper(resendingLetterController)
 );
 router.use(
   "/users/avatars",
@@ -27,6 +41,7 @@ router.use(
   express.static(downloadFileDir),
   tryCatchWrapper(userAvatarController)
 );
+
 router.post(
   "/signup",
   addUserValitation,

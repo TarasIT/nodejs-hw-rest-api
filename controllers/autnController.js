@@ -6,6 +6,8 @@ const {
   updateUserAvatar,
   updateUserSubscription,
   resizeAndRelocateAvatar,
+  verifyUser,
+  resendingVerificationLetter,
 } = require("../services/authService");
 
 const registrationController = async (req, res, next) => {
@@ -24,6 +26,25 @@ const logInController = async (req, res, next) => {
   if (!token) return next(error(401, "Not authorized"));
   res.status(200).json({
     user: { token, email, subscription },
+  });
+};
+
+const verifyController = async (req, res, next) => {
+  const { verificationToken } = req.params;
+  const user = await verifyUser(verificationToken);
+  if (!user) return next(error(404, "User not found"));
+  res.status(200).json({
+    message: "Verification successful",
+  });
+};
+
+const resendingLetterController = async (req, res, next) => {
+  const { email } = req.body;
+  if (!email) return;
+  const isLetterSent = await resendingVerificationLetter(email, next);
+  if (!isLetterSent) return;
+  res.status(200).json({
+    message: "Verification email sent",
   });
 };
 
@@ -63,9 +84,11 @@ const logOutController = async (req, res, next) => {
 
 module.exports = {
   registrationController,
+  verifyController,
   logInController,
   currentUserController,
   userSubscriptionController,
   userAvatarController,
   logOutController,
+  resendingLetterController,
 };
