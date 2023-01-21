@@ -3,8 +3,10 @@ const bcrypt = require("bcrypt");
 const gravatar = require("gravatar");
 const Jimp = require("jimp");
 const fs = require("fs").promises;
+const { v4: uuidv4 } = require("uuid");
 const { User, userSchema } = require("../db/userModel");
 const { error } = require("../helpers/errors");
+const { emailConfirm } = require("./emailService");
 
 const registration = async (email, password) => {
   const existingUser = await User.findOne({ email });
@@ -13,13 +15,34 @@ const registration = async (email, password) => {
     email,
     password,
     avatarURL: gravatar.url(email),
+    verificationToken: uuidv4(),
   });
   await user.save();
+  await emailConfirm(email, user.verificationToken);
 };
+
+const resendingVerificationLetter = async (email, next) => {
+  const user = await User.findOne({ email });
+  if (!user) return next(error(400, `No user with email '${email}' found`));
+  if (user.verify)
+    return next(error(400, "Verification has already been passed"));
+  await emailConfirm(email, user.verificationToken);
+  return true;
+};
+
+const verifyUser = async (verificationToken) =>
+  await User.findOneAndUpdate(
+    { verificationToken },
+    {
+      $set: { verificationToken: null, verify: true },
+    },
+    { new: true }
+  );
 
 const logIn = async (email, password, next) => {
   const user = await User.findOne({ email });
   if (!user) return next(error(400, `No user with email '${email}' found`));
+  if (!user.verify) return next(error(400, `User is not verified`));
   if (!(await bcrypt.compare(password, user.password)))
     return next(error(400, `Wrong password`));
   const token = jwt.sign(
@@ -81,4 +104,6 @@ module.exports = {
   updateUserAvatar,
   updateUserSubscription,
   resizeAndRelocateAvatar,
+  verifyUser,
+  resendingVerificationLetter,
 };
