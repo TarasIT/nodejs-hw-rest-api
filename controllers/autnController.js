@@ -7,7 +7,7 @@ const {
   updateUserSubscription,
   resizeAndRelocateAvatar,
   verifyUser,
-  resendingVerificationLetter,
+  resendVerificationLetter,
 } = require("../services/authService");
 
 const registrationController = async (req, res, next) => {
@@ -41,7 +41,7 @@ const verifyController = async (req, res, next) => {
 const resendingLetterController = async (req, res, next) => {
   const { email } = req.body;
   if (!email) return;
-  const isLetterSent = await resendingVerificationLetter(email, next);
+  const isLetterSent = await resendVerificationLetter(email, next);
   if (!isLetterSent) return;
   res.status(200).json({
     message: "Verification email sent",

@@ -21,7 +21,7 @@ const registration = async (email, password) => {
   await emailConfirm(email, user.verificationToken);
 };
 
-const resendingVerificationLetter = async (email, next) => {
+const resendVerificationLetter = async (email, next) => {
   const user = await User.findOne({ email });
   if (!user) return next(error(400, `No user with email '${email}' found`));
   if (user.verify)
@@ -105,5 +105,5 @@ module.exports = {
   updateUserSubscription,
   resizeAndRelocateAvatar,
   verifyUser,
-  resendingVerificationLetter,
+  resendVerificationLetter,
 };
